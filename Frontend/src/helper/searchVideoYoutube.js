@@ -9,7 +9,7 @@ export async function searchVideoYoutube(keySearch) {
         q: keySearch,
         maxResults: 50,
         type: "video",
-        key: "AIzaSyB7PtdrRWx7fvgMFUh25E0ozchyQKgue0A",
+        key: "",
       },
     });
     return response.data;
