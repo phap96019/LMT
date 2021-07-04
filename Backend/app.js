@@ -9,8 +9,6 @@ const io = require("socket.io")(http, {
   },
 });
 
-const rooms = {};
-
 const cors = require("cors");
 app.use(cors());
 
@@ -19,7 +17,7 @@ app.get("/", (req, res) => {
 });
 
 const onConnection = (socket) => {
-  console.log(io.sockets.adapter.rooms);
+  // console.log(io.sockets.adapter.rooms);
   // console.log(socket.id);
   const onJoinRoom = (arg) => {
     socket.join(arg.roomId);
@@ -34,13 +32,19 @@ const onConnection = (socket) => {
     console.log(msg);
     io.to(roomId).emit("recive play-pause", msg);
   };
+  const onReciveProgress = (msg) => {
+    const { roomId, type, time } = msg;
+    console.log('msg: ', msg);
+    io.to(roomId).emit("progress", msg);
+  };
+
   socket.on("join room", onJoinRoom);
   socket.on("send message", onReciveAndSendMessage);
   socket.on("send play-pause", onRecivePlayPause);
+  socket.on("progress", onReciveProgress);
 };
 
 io.on("connection", onConnection);
 
-http.listen(3030, () => {
-  console.log("listening on *:3030");
-});
+module.exports = http;
+

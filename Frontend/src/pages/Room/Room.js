@@ -6,6 +6,8 @@ import { io } from "socket.io-client";
 import {
   connectSocketId,
   reciveMessage,
+  reciveProgress,
+  sendProgress,
   sendPlayPause,
   recivePlayPause,
   joinRoom,
@@ -14,6 +16,8 @@ import { useParams } from "react-router-dom";
 
 import "./Room.scss";
 let count = 0;
+let sended2 = false;
+let justRecive = false;
 const listData = [
   "https://www.youtube.com/watch?v=vTJdVE_gjI0",
   "https://www.youtube.com/watch?v=RoR7wEEvIuo",
@@ -25,9 +29,9 @@ export const Room = (props) => {
   const [playing, setPlaying] = useState(true);
   const [messages, setMessages] = useState([]);
   const [url, setUrl] = useState(listData[count]);
+  const [playedSeconds, setPlayedSeconds] = useState(0);
   const [played, setPlayed] = useState(0);
   const { roomId } = useParams();
-
   const addMessage = (message) => {
     const newMessages = messages.push(message);
     setMessages(newMessages);
@@ -40,13 +44,15 @@ export const Room = (props) => {
   useEffect(() => {
     reciveMessage(addMessage);
     recivePlayPause(playPause);
+    reciveProgress(handleOnReciveProgress);
     joinRoom("phap", roomId);
+
   }, []);
   const handleOnSendPlayPause = () => {
     setPlaying(!playing);
     sendPlayPause({ roomId: roomId, type: "playing", value: !playing });
   };
-
+ 
   const handleOnClick = async () => {
     handleOnSendPlayPause();
     // setPlaying(!playing);
@@ -56,15 +62,32 @@ export const Room = (props) => {
   function onEnded() {
     count++;
     setUrl(listData[count]);
-    console.log("oke");
   }
   const handleSeekChange = (e) => {
     setPlayed(parseFloat(e.target.value));
     player.current.seekTo(parseFloat(e.target.value));
   };
+
+  const handleOnReciveProgress = (msg) => {
+    if (!sended2) {
+      console.log('handle recive progress: ');
+      setPlayed(parseFloat(msg.time));
+      player.current.seekTo(parseFloat(msg.time));
+      justRecive = true;
+    }
+    sended2 = false;
+  }
+
   const handleProgress = (e) => {
-    setPlayed(parseFloat(e.played));
+    if (!justRecive && Math.abs(e.playedSeconds - playedSeconds) > 5) {
+      setPlayed(parseFloat(e.played));
+      sendProgress(roomId, 'progress', parseFloat(e.played), e.playedSeconds);
+      sended2 = true;
+    }
+    setPlayedSeconds(e.playedSeconds);
+    justRecive = false;
   };
+
   const player = useRef(0, "fraction");
   return (
     <div className="container">
@@ -79,8 +102,14 @@ export const Room = (props) => {
           width="100%"
           height={getWindowDimensions().height / 2}
           onError={onEnded}
-          onSeek={(e) => console.log("onSeek", e)}
+          onSeek={(e) => console.log("onSeektype", e)}
           onProgress={handleProgress}
+          onPause={()=>{
+            console.log("PAUUUU");
+          }}
+          onPlay={()=>{
+            console.log("PLAYYYY");
+          }}
         />
         <input
           type="range"

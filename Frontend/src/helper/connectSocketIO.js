@@ -23,6 +23,24 @@ export const reciveMessage = (func) => {
   });
 };
 
+export const reciveProgress = (func) => {
+  socket.on("progress", (msg) => {
+    // console.log('recive progress: ', msg);
+    func(msg);
+  });
+};
+
+export const sendProgress = (roomId, type, time, playedSeconds) => {
+  const msg = {
+    roomId,
+    type,
+    time,
+    playedSeconds,
+  }
+  console.log("send progress: ", msg);
+  socket.emit("progress", msg);
+};
+
 export const recivePlayPause = (func) => {
   socket.on("recive play-pause", (msg) => {
     console.log("msg recive: ", msg);
