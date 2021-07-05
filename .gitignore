@@ -3,7 +3,9 @@
 # dependencies
 /node_modules
 /Backend/node_modules
+/Backend/build
 /Frontend/node_modules
+/Frontend/build
 /Temp
 /.pnp
 .pnp.js

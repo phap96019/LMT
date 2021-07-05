@@ -16,8 +16,10 @@ import { useParams } from "react-router-dom";
 
 import "./Room.scss";
 let count = 0;
-let sended2 = false;
-let justRecive = false;
+let sendedProgress = false;
+let justReciveProgress = false;
+let sendedPlayPause = false;
+let justRecivePlayPause = false;
 const listData = [
   "https://www.youtube.com/watch?v=vTJdVE_gjI0",
   "https://www.youtube.com/watch?v=RoR7wEEvIuo",
@@ -37,24 +39,28 @@ export const Room = (props) => {
     setMessages(newMessages);
     console.log("messages: ", messages);
   };
-  const playPause = (msg) => {
-    setPlaying(msg.value);
-  };
 
   useEffect(() => {
     reciveMessage(addMessage);
-    recivePlayPause(playPause);
+    recivePlayPause(onRecivePlayPause);
     reciveProgress(handleOnReciveProgress);
     joinRoom("phap", roomId);
-
   }, []);
-  const handleOnSendPlayPause = () => {
-    setPlaying(!playing);
-    sendPlayPause({ roomId: roomId, type: "playing", value: !playing });
+
+  const handlePlayPause = (type) => {
+    if (type === "play") {
+      sendPlayPause({ roomId: roomId, type: "playing", value: true });
+    }
+    if (type === "pause") {
+      sendPlayPause({ roomId: roomId, type: "playing", value: false });
+    }
   };
- 
+  const onRecivePlayPause = (msg) => {
+    setPlaying(msg.value);
+  };
+
   const handleOnClick = async () => {
-    handleOnSendPlayPause();
+    handlePlayPause();
     // setPlaying(!playing);
     // const listSearch = await searchVideoYoutube("di ve nha");
     // console.log(listSearch.items);
@@ -68,24 +74,24 @@ export const Room = (props) => {
     player.current.seekTo(parseFloat(e.target.value));
   };
 
+  //handle progress
   const handleOnReciveProgress = (msg) => {
-    if (!sended2) {
-      console.log('handle recive progress: ');
+    if (!sendedProgress) {
       setPlayed(parseFloat(msg.time));
       player.current.seekTo(parseFloat(msg.time));
-      justRecive = true;
+      justReciveProgress = true;
     }
-    sended2 = false;
-  }
+    sendedProgress = false;
+  };
 
   const handleProgress = (e) => {
-    if (!justRecive && Math.abs(e.playedSeconds - playedSeconds) > 5) {
+    if (!justReciveProgress && Math.abs(e.playedSeconds - playedSeconds) > 5) {
       setPlayed(parseFloat(e.played));
-      sendProgress(roomId, 'progress', parseFloat(e.played), e.playedSeconds);
-      sended2 = true;
+      sendProgress(roomId, "progress", parseFloat(e.played), e.playedSeconds);
+      sendedProgress = true;
     }
     setPlayedSeconds(e.playedSeconds);
-    justRecive = false;
+    justReciveProgress = false;
   };
 
   const player = useRef(0, "fraction");
@@ -104,12 +110,8 @@ export const Room = (props) => {
           onError={onEnded}
           onSeek={(e) => console.log("onSeektype", e)}
           onProgress={handleProgress}
-          onPause={()=>{
-            console.log("PAUUUU");
-          }}
-          onPlay={()=>{
-            console.log("PLAYYYY");
-          }}
+          onPause={() => handlePlayPause("pause")}
+          onPlay={() => handlePlayPause("play")}
         />
         <input
           type="range"

@@ -1,3 +1,5 @@
+const express = require("express");
+const path = require("path");
 const app = require("express")();
 const http = require("http").Server(app);
 const io = require("socket.io")(http, {
@@ -11,10 +13,10 @@ const io = require("socket.io")(http, {
 
 const cors = require("cors");
 app.use(cors());
-
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-});
+// app.use(express.static(path.join(__dirname, 'build'))); 
+// app.get('/*', function (req, res) {
+//   res.sendFile(path.join(__dirname, 'build', 'index.html'));
+// });
 
 const onConnection = (socket) => {
   // console.log(io.sockets.adapter.rooms);
@@ -34,7 +36,6 @@ const onConnection = (socket) => {
   };
   const onReciveProgress = (msg) => {
     const { roomId, type, time } = msg;
-    console.log('msg: ', msg);
     io.to(roomId).emit("progress", msg);
   };
 
