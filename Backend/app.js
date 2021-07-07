@@ -13,7 +13,7 @@ const io = require("socket.io")(http, {
 
 const cors = require("cors");
 app.use(cors());
-// app.use(express.static(path.join(__dirname, 'build'))); 
+// app.use(express.static(path.join(__dirname, 'build')));
 // app.get('/*', function (req, res) {
 //   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 // });
@@ -38,14 +38,18 @@ const onConnection = (socket) => {
     const { roomId, type, time } = msg;
     io.to(roomId).emit("progress", msg);
   };
+  const onRecivehandleNext = (msg) => {
+    const { roomId, count } = msg;
+    io.to(roomId).emit("handleNext", count);
+  };
 
   socket.on("join room", onJoinRoom);
   socket.on("send message", onReciveAndSendMessage);
   socket.on("send play-pause", onRecivePlayPause);
   socket.on("progress", onReciveProgress);
+  socket.on("handleNext", onRecivehandleNext);
 };
 
 io.on("connection", onConnection);
 
 module.exports = http;
-

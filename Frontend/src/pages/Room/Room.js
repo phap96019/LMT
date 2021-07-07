@@ -10,6 +10,8 @@ import {
   sendProgress,
   sendPlayPause,
   recivePlayPause,
+  sendHanleNext,
+  reciveHandleNext,
   joinRoom,
 } from "../../helper/connectSocketIO";
 import { useParams } from "react-router-dom";
@@ -23,8 +25,8 @@ let justRecivePlayPause = false;
 const listData = [
   "https://www.youtube.com/watch?v=vTJdVE_gjI0",
   "https://www.youtube.com/watch?v=RoR7wEEvIuo",
-  "https://soundcloud.com/touliver/ssbigcityboi",
-  "https://soundcloud.com/japannezz/muon-duoc-cung-em-freaky-x-cm1x-ft-quynh-gai",
+  "https://www.youtube.com/watch?v=7nB1q65RP8w",
+  "https://www.youtube.com/watch?v=ECxVfrwwTp0",
 ];
 
 export const Room = (props) => {
@@ -44,6 +46,7 @@ export const Room = (props) => {
     reciveMessage(addMessage);
     recivePlayPause(onRecivePlayPause);
     reciveProgress(handleOnReciveProgress);
+    reciveHandleNext(onReciveHandleNext)
     joinRoom("phap", roomId);
   }, []);
 
@@ -65,10 +68,17 @@ export const Room = (props) => {
     // const listSearch = await searchVideoYoutube("di ve nha");
     // console.log(listSearch.items);
   };
-  function onEnded() {
+  
+  function handleNext() {
     count++;
     setUrl(listData[count]);
+    sendHanleNext(roomId, count);
   }
+  const onReciveHandleNext = (number) => {
+    count = number;
+    setUrl(listData[count]);
+  }
+
   const handleSeekChange = (e) => {
     setPlayed(parseFloat(e.target.value));
     player.current.seekTo(parseFloat(e.target.value));
@@ -103,26 +113,27 @@ export const Room = (props) => {
           className="video"
           url={url}
           playing={playing}
-          onEnded={onEnded}
+          onEnded={handleNext}
           controls={true}
           width="100%"
           height={getWindowDimensions().height / 2}
-          onError={onEnded}
+          onError={handleNext}
           onSeek={(e) => console.log("onSeektype", e)}
           onProgress={handleProgress}
           onPause={() => handlePlayPause("pause")}
           onPlay={() => handlePlayPause("play")}
         />
-        <input
+        {/* <input
           type="range"
           min={0}
           max={0.999999}
           step="any"
           value={played}
           onChange={handleSeekChange}
-        />
-        <div onClick={handleOnClick}>CLICK</div>
-        <progress max={1} value={played} />
+        /> */}
+        {/* <div onClick={handleOnClick}>Next</div> */}
+        <div onClick={handleNext}>Next</div>
+        {/* <progress max={1} value={played} /> */}
       </div>
       <div className="main-right"></div>
     </div>

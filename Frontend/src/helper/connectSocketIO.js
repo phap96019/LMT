@@ -1,4 +1,5 @@
 import { io } from "socket.io-client";
+
 const socket = io("http://localhost:3030");
 
 export const connectSocket = () => {
@@ -47,6 +48,17 @@ export const recivePlayPause = (func) => {
 export const sendPlayPause = (msg) => {
   socket.emit("send play-pause", msg);
 };
+
+export const reciveHandleNext = (func) => {
+  socket.on("handleNext", msg => {
+    console.log("recive next", msg);
+    func(msg);
+  })
+}
+export const sendHanleNext = (roomId, msg) => {
+  console.log('send', { roomId, count: msg });
+  socket.emit("handleNext", { roomId, count: msg });
+}
 
 export const joinRoom = (name, roomId) => {
   socket.emit("join room", { name, roomId });
