@@ -3,15 +3,26 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  //   width: 100%;
+  width: 100%;
   justify-content: space-around;
 }
 .main-left {
-  width: 100%;
+  width: 97%;
   height: 300px;
   display: flex;
   flex-direction: column;
+  margin: 5px;
 }
+
+.main-right {
+  width: 97%;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  margin: 5px;
+  background-color: red;
+}
+
 .video {
   width: 100%;
   height: 500px;

@@ -17,24 +17,29 @@ import {
 import { useParams } from "react-router-dom";
 
 import "./Room.scss";
+
+import { Navbar } from "../../components/Navbar/Navbar";
+import { ButtonS1 } from "../../components/Button/ButtonS1";
+import { TextInput } from "../../components/Input/TextInput";
+
 let count = 0;
 let sendedProgress = false;
 let justReciveProgress = false;
 let sendedPlayPause = false;
 let justRecivePlayPause = false;
-const listData = [
-  "https://www.youtube.com/watch?v=vTJdVE_gjI0",
-  "https://www.youtube.com/watch?v=RoR7wEEvIuo",
-  "https://www.youtube.com/watch?v=7nB1q65RP8w",
-  "https://www.youtube.com/watch?v=ECxVfrwwTp0",
-];
 
 export const Room = (props) => {
+  // All state
+  const [listData, setListData] = useState([
+    "https://www.youtube.com/watch?v=vTJdVE_gjI0",
+  ]);
   const [playing, setPlaying] = useState(true);
   const [messages, setMessages] = useState([]);
   const [url, setUrl] = useState(listData[count]);
   const [playedSeconds, setPlayedSeconds] = useState(0);
   const [played, setPlayed] = useState(0);
+  const [newLink, setNewLink] = useState("");
+
   const { roomId } = useParams();
   const addMessage = (message) => {
     const newMessages = messages.push(message);
@@ -46,7 +51,7 @@ export const Room = (props) => {
     reciveMessage(addMessage);
     recivePlayPause(onRecivePlayPause);
     reciveProgress(handleOnReciveProgress);
-    reciveHandleNext(onReciveHandleNext)
+    reciveHandleNext(onReciveHandleNext);
     joinRoom("phap", roomId);
   }, []);
 
@@ -64,25 +69,21 @@ export const Room = (props) => {
 
   const handleOnClick = async () => {
     handlePlayPause();
-    // setPlaying(!playing);
-    // const listSearch = await searchVideoYoutube("di ve nha");
-    // console.log(listSearch.items);
   };
-  
+
   function handleNext() {
     count++;
     setUrl(listData[count]);
     sendHanleNext(roomId, count);
   }
   const onReciveHandleNext = (number) => {
-    count = number;
-    setUrl(listData[count]);
-  }
-
-  const handleSeekChange = (e) => {
-    setPlayed(parseFloat(e.target.value));
-    player.current.seekTo(parseFloat(e.target.value));
+    // setUrl(listData[number]);
   };
+
+  // const handleSeekChange = (e) => {
+  //   setPlayed(parseFloat(e.target.value));
+  //   player.current.seekTo(parseFloat(e.target.value));
+  // };
 
   //handle progress
   const handleOnReciveProgress = (msg) => {
@@ -104,26 +105,43 @@ export const Room = (props) => {
     justReciveProgress = false;
   };
 
+  const handleOnSubmit = (e) => {
+    e.preventDefault();
+    setListData([...listData, newLink]);
+    setNewLink("");
+  };
+
+  const handleOnChangeNewLink = (e) => {
+    setNewLink(e.target.value);
+  };
+
   const player = useRef(0, "fraction");
   return (
-    <div className="container">
-      <div className="main-left">
-        <ReactPlayer
-          ref={player}
-          className="video"
-          url={url}
-          playing={playing}
-          onEnded={handleNext}
-          controls={true}
-          width="100%"
-          height={getWindowDimensions().height / 2}
-          onError={handleNext}
-          onSeek={(e) => console.log("onSeektype", e)}
-          onProgress={handleProgress}
-          onPause={() => handlePlayPause("pause")}
-          onPlay={() => handlePlayPause("play")}
-        />
-        {/* <input
+    <div>
+      {() => {
+        console.log("list: ", listData);
+      }}
+      <div>
+        <Navbar />
+      </div>
+      <div className="container">
+        <div className="main-left">
+          <ReactPlayer
+            ref={player}
+            className="video"
+            url={url}
+            playing={playing}
+            onEnded={handleNext}
+            controls={true}
+            width="100%"
+            height={getWindowDimensions().height / 2}
+            onError={handleNext}
+            onSeek={(e) => console.log("onSeektype", e)}
+            onProgress={handleProgress}
+            onPause={() => handlePlayPause("pause")}
+            onPlay={() => handlePlayPause("play")}
+          />
+          {/* <input
           type="range"
           min={0}
           max={0.999999}
@@ -131,11 +149,22 @@ export const Room = (props) => {
           value={played}
           onChange={handleSeekChange}
         /> */}
-        {/* <div onClick={handleOnClick}>Next</div> */}
-        <div onClick={handleNext}>Next</div>
-        {/* <progress max={1} value={played} /> */}
+          {/* <div onClick={handleOnClick}>Next</div> */}
+          {/* <progress max={1} value={played} /> */}
+          <div>
+            <TextInput
+              placeholder="Insert Link"
+              handleOnSubmit={handleOnSubmit}
+              value={newLink}
+              handleOnChange={handleOnChangeNewLink}
+            />
+          </div>
+          <div>
+            <ButtonS1 text="Next" handleOnClick={handleNext} />
+          </div>
+        </div>
+        <div className="main-right"></div>
       </div>
-      <div className="main-right"></div>
     </div>
   );
 };

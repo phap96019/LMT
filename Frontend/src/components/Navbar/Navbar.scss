@@ -1,0 +1,20 @@
+.navbar__container {
+  display: flex;
+  height: 50px;
+  width: 100%;
+  background-color: powderblue;
+  margin-left: 20%;
+  margin-right: 20%;
+  .navbar__component {
+    // background-color: red;
+    .navbar__logo {
+      height: 50px;
+      width: auto;
+    }
+    .navbar__component__option {
+      color: white;
+      margin: 15px 10px 10px 10px;
+      text-decoration-line: none
+    }
+  }
+}
