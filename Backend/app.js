@@ -19,19 +19,16 @@ app.use(cors());
 // });
 
 const onConnection = (socket) => {
-  // console.log(io.sockets.adapter.rooms);
-  // console.log(socket.id);
   const onJoinRoom = (arg) => {
     socket.join(arg.roomId);
-    console.log(io.sockets.adapter.rooms);
+    io.to(arg.roomId).emit("message", { message: `${arg.name} da vao phong` });
   };
-  const onReciveAndSendMessage = (msg) => {
-    const { roomId, message } = msg;
-    io.to(roomId).emit("recive message", message);
+  const onReciveMessage = (msg) => {
+    const { roomId } = msg;
+    io.to(roomId).emit("message", msg);
   };
   const onRecivePlayPause = (msg) => {
     const { roomId, type, value } = msg;
-    console.log(msg);
     io.to(roomId).emit("recive play-pause", msg);
   };
   const onReciveProgress = (msg) => {
@@ -44,7 +41,7 @@ const onConnection = (socket) => {
   };
 
   socket.on("join room", onJoinRoom);
-  socket.on("send message", onReciveAndSendMessage);
+  socket.on("message", onReciveMessage);
   socket.on("send play-pause", onRecivePlayPause);
   socket.on("progress", onReciveProgress);
   socket.on("handleNext", onRecivehandleNext);
