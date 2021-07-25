@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactPlayer from "react-player";
+import { Widget, addResponseMessage } from "react-chat-widget";
+import "react-chat-widget/lib/styles.css";
 import { getWindowDimensions } from "../../helper/getWindowDemensions";
 import { searchVideoYoutube } from "../../helper/searchVideoYoutube";
 import { io } from "socket.io-client";
 import {
-  connectSocketId,
   reciveMessage,
+  sendMessage,
   reciveProgress,
   sendProgress,
   sendPlayPause,
@@ -13,20 +15,18 @@ import {
   sendHanleNext,
   reciveHandleNext,
   joinRoom,
-} from "../../helper/connectSocketIO";
+} from "helper/connectSocketIO";
 import { useParams } from "react-router-dom";
 
 import "./Room.scss";
 
-import { Navbar } from "../../components/Navbar/Navbar";
+import { Navbar } from "components/Navbar/Navbar";
 import { ButtonS1 } from "../../components/Button/ButtonS1";
 import { TextInput } from "../../components/Input/TextInput";
 
 let count = 0;
 let sendedProgress = false;
 let justReciveProgress = false;
-let sendedPlayPause = false;
-let justRecivePlayPause = false;
 
 export const Room = (props) => {
   // All state
@@ -41,17 +41,12 @@ export const Room = (props) => {
   const [newLink, setNewLink] = useState("");
 
   const { roomId } = useParams();
-  const addMessage = (message) => {
-    const newMessages = messages.push(message);
-    setMessages(newMessages);
-    console.log("messages: ", messages);
-  };
 
   useEffect(() => {
-    reciveMessage(addMessage);
     recivePlayPause(onRecivePlayPause);
     reciveProgress(handleOnReciveProgress);
     reciveHandleNext(onReciveHandleNext);
+    reciveMessage(onReciveMessage);
     joinRoom("phap", roomId);
   }, []);
 
@@ -115,6 +110,14 @@ export const Room = (props) => {
     setNewLink(e.target.value);
   };
 
+  const handleSendMessage = (newMessages) => {
+    sendMessage(roomId, newMessages);
+  }
+  const onReciveMessage = (newMessages) => {
+    console.log("recive at room: ", newMessages);
+    addResponseMessage(newMessages.message);
+
+  }
   const player = useRef(0, "fraction");
   return (
     <div>
@@ -163,7 +166,13 @@ export const Room = (props) => {
             <ButtonS1 text="Next" handleOnClick={handleNext} />
           </div>
         </div>
-        <div className="main-right"></div>
+        <div className="main-right">
+          <Widget
+            title="Hello guy"
+            subtitle="Chat with your friend"
+            handleNewUserMessage={handleSendMessage}
+          />
+        </div>
       </div>
     </div>
   );

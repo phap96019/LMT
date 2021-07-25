@@ -1,10 +1,10 @@
 import { io } from "socket.io-client";
 
 const socket = io("http://localhost:3030");
-
+let userId = socket.id;
 export const connectSocket = () => {
   socket.on("connect", () => {
-    // console.log(socket.id);
+    userId = socket.id;
   });
 };
 
@@ -18,10 +18,21 @@ export const connectSocketId = (func) => {
 };
 
 export const reciveMessage = (func) => {
-  socket.on("recive message", (msg) => {
-    console.log(msg);
-    func(msg);
+  socket.on("message", (msg) => {
+    if (msg.userId !== userId) {
+      console.log("recive: ", msg);
+      func(msg);
+    }
   });
+};
+export const sendMessage = (roomId, message) => {
+  const msg = {
+    userId,
+    roomId,
+    message,
+  };
+  console.log(msg);
+  socket.emit("message", msg);
 };
 
 export const reciveProgress = (func) => {
@@ -50,16 +61,25 @@ export const sendPlayPause = (msg) => {
 };
 
 export const reciveHandleNext = (func) => {
-  socket.on("handleNext", msg => {
+  socket.on("handleNext", (msg) => {
     console.log("recive next", msg);
     func(msg);
-  })
-}
+  });
+};
 export const sendHanleNext = (roomId, msg) => {
-  console.log('send', { roomId, count: msg });
+  console.log("send", { roomId, count: msg });
   socket.emit("handleNext", { roomId, count: msg });
+};
+
+export const sendLink = (roomId, newLink) => {
+  const msg = {
+    userId,
+    roomId,
+    newLink,
+  };
+  socket.emit("progress", msg);
 }
 
 export const joinRoom = (name, roomId) => {
-  socket.emit("join room", { name, roomId });
+  socket.emit("join room", { userId, name, roomId });
 };
